@@ -1,6 +1,6 @@
-import {Thread, Frame} from 'app/types/events';
-import {Event} from 'app/types';
+import {Thread} from 'app/types/events';
 import {trimPackage} from 'app/components/events/interfaces/frame/utils';
+import {Event, Frame} from 'app/types';
 
 import getThreadStacktrace from './getThreadStacktrace';
 import getRelevantFrame from './getRelevantFrame';

@@ -1,6 +1,5 @@
 import React from 'react';
 
-import {Meta} from 'app/types';
 import {defined, isUrl} from 'app/utils';
 import Tooltip from 'app/components/tooltip';
 import Truncate from 'app/components/truncate';
@@ -9,11 +8,11 @@ import ExternalLink from 'app/components/links/externalLink';
 import AnnotatedText from 'app/components/events/meta/annotatedText';
 import {t} from 'app/locale';
 import {getMeta} from 'app/components/events/meta/metaProxy';
+import {Meta, Frame, PlatformType} from 'app/types';
 
 import FrameFunctionName from './frameFunctionName';
 import {getPlatform, trimPackage} from './utils';
 import FrameDefaultTitleOriginalSourceInfo from './frameDefaultTitleOriginalSourceInfo';
-import {Frame, PlatformType} from './types';
 
 type Props = {
   frame: Frame;
