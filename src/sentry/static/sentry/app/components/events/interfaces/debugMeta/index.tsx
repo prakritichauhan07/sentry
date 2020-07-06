@@ -26,6 +26,7 @@ import DebugImage from './debugImage';
 import ImageIcon from './imageIcon';
 
 const MIN_FILTER_LEN = 3;
+const MAX_HEIGHT = 600;
 
 function getFileName(path) {
   const directorySeparator = /^([a-z]:\\|\\\\)/i.test(path) ? '\\' : '/';
@@ -53,6 +54,7 @@ type State = {
   showUnused: boolean;
   showDetails: boolean;
   foundFrame?: Frame;
+  debugImagesPanelHeight?: number;
 };
 
 const cache = new CellMeasurerCache({
@@ -85,6 +87,9 @@ class DebugMetaInterface extends React.PureComponent<Props> {
     ) {
       this.filterImages();
     }
+    if (prevState.filteredImages.length === 0 && this.state.filteredImages.length > 0) {
+      this.getClippedBoxHeight();
+    }
   }
 
   componentWillUnmount() {
@@ -94,6 +99,13 @@ class DebugMetaInterface extends React.PureComponent<Props> {
   }
 
   unsubscribeFromStore: any;
+  debugImagesPanelRef = React.createRef<HTMLDivElement>();
+
+  getClippedBoxHeight() {
+    this.setState({
+      debugImagesPanelHeight: this.debugImagesPanelRef?.current?.offsetHeight,
+    });
+  }
 
   filterImages() {
     // skip null values indicating invalid debug images
@@ -269,8 +281,6 @@ class DebugMetaInterface extends React.PureComponent<Props> {
     const {orgId, projectId} = this.props;
     const {filteredImages, showDetails} = this.state;
 
-    console.log('test', filteredImages[index]);
-
     return (
       <CellMeasurer
         cache={cache}
@@ -290,6 +300,45 @@ class DebugMetaInterface extends React.PureComponent<Props> {
     );
   };
 
+  renderImageList() {
+    const {filteredImages, showDetails, debugImagesPanelHeight} = this.state;
+    const {orgId, projectId} = this.props;
+
+    if (!debugImagesPanelHeight) {
+      return filteredImages.map(filteredImage => (
+        <DebugImage
+          key={filteredImage.debug_id}
+          image={filteredImage}
+          orgId={orgId}
+          projectId={projectId}
+          showDetails={showDetails}
+        />
+      ));
+    }
+
+    return (
+      <div
+        style={{
+          height: debugImagesPanelHeight,
+        }}
+      >
+        <AutoSizer>
+          {({width, height}) => (
+            <List
+              deferredMeasurementCache={cache}
+              height={height}
+              overscanRowCount={10}
+              rowCount={filteredImages.length}
+              rowHeight={cache.rowHeight}
+              rowRenderer={this.renderRow}
+              width={width}
+            />
+          )}
+        </AutoSizer>
+      </div>
+    );
+  }
+
   render() {
     const {filteredImages, foundFrame} = this.state;
 
@@ -305,28 +354,13 @@ class DebugMetaInterface extends React.PureComponent<Props> {
         wrapTitle={false}
         isCentered
       >
-        <DebugImagesPanel>
+        <DebugImagesPanel forwardRef={this.debugImagesPanelRef}>
           <ClippedBox clipHeight={560}>
             {foundFrame && (
               <ImageForBar frame={foundFrame} onShowAllImages={this.handleChangeFilter} />
             )}
             {filteredImages.length > 0 ? (
-              <AutoSizer>
-                {({height, width}) => {
-                  console.log('height', height);
-                  return (
-                    <List
-                      deferredMeasurementCache={cache}
-                      height={400}
-                      overscanRowCount={3}
-                      rowCount={filteredImages.length}
-                      rowHeight={cache.rowHeight}
-                      rowRenderer={this.renderRow}
-                      width={width}
-                    />
-                  );
-                }}
-              </AutoSizer>
+              this.renderImageList()
             ) : (
               <EmptyItem>
                 <ImageIcon type="muted" src="icon-circle-exclamation" />{' '}
@@ -365,7 +399,7 @@ const StyledEventDataSection = styled(EventDataSection)`
 const DebugImagesPanel = styled(Panel)`
   margin-bottom: ${space(1)};
   max-height: 600px;
-  min-height: 300px;
+  overflow: hidden;
 `;
 
 const ToolbarWrapper = styled('div')`

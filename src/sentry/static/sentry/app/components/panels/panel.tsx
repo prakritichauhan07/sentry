@@ -10,18 +10,19 @@ type Props = {
   title?: React.ReactNode;
   body?: React.ReactNode;
   dashedBorder?: boolean;
+  forwardRef?: React.Ref<HTMLDivElement>;
 };
 
 type PanelProps = Omit<React.HTMLProps<HTMLDivElement>, keyof Props> & Props;
 
 const Panel = styled(
-  ({title, body, dashedBorder: _dashedBorder, ...props}: PanelProps) => {
+  ({title, body, dashedBorder: _dashedBorder, forwardRef, ...props}: PanelProps) => {
     const hasHeaderAndBody = !!title && !!body;
 
     return !hasHeaderAndBody ? (
-      <div {...props} />
+      <div {...props} ref={forwardRef} />
     ) : (
-      <div {...props}>
+      <div {...props} ref={forwardRef}>
         <PanelHeader>{title}</PanelHeader>
         <PanelBody>{body}</PanelBody>
       </div>
