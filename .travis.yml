@@ -68,6 +68,8 @@ install_volta: &install_volta |-
   wget --quiet "https://github.com/volta-cli/volta/releases/download/v$VOLTA_VERSION/volta-$VOLTA_VERSION-linux-openssl-1.0.tar.gz"
   tar -xzf "volta-$VOLTA_VERSION-linux-openssl-1.0.tar.gz" -C "${HOME}/bin"
   # Running `volta -v` triggers setting up the shims in VOLTA_HOME (otherwise node won't work)
+  file volta
+  sudo file volta
   volta -v
 
 install_node_dependencies: &install_node_dependencies |-
